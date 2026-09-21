@@ -1,0 +1,76 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Sacramento&family=Allura&family=Tangerine:wght@700&family=Bodoni+Moda:ital,wght@0,500;0,600;1,500;1,600&family=Playfair+Display:ital,wght@0,600;1,500;1,600&family=Cormorant+SC&display=swap');
+
+@import 'tailwindcss';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-jakarta: 'Plus Jakarta Sans', sans-serif;
+   --font-bodoni: 'Bodoni Moda', serif;
+   --font-fraunces: 'Fraunces', serif;
+}
+
+:root {
+  color-scheme: light;
+}
+
+.dark {
+  color-scheme: dark;
+}
+
+input[type="search"]::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-blue-50);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-gray-300);
+  border-radius: 9999px;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: var(--color-gray-900);
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: var(--color-gray-700);
+}
+
+@layer components {
+  .input-shell {
+    @apply border border-gray-200 rounded-xl transition-colors;
+  }
+
+  .input-shell:focus-within {
+    @apply border-blue-500 ring-4 ring-blue-50;
+  }
+
+  .dark .input-shell {
+    @apply border-gray-700;
+  }
+
+  .dark .input-shell:focus-within {
+    @apply border-blue-400 ring-blue-950;
+  }
+}
