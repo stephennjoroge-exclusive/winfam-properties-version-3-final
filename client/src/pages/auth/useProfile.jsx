@@ -18,7 +18,6 @@ const useProfile = () => {
                     signal: controller.signal
                 })
                 setProfile(res.data ?? [])
-                console.log(res.data)
             } catch(err) {
                 if (axios.isCancel(err)) return;
                 const message = err.message || 'something went wrong while fetching the data'

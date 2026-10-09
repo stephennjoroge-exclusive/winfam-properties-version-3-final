@@ -86,12 +86,7 @@ const Sidebar = ({showSidebar, setShowSidebar,theme, setTheme, toggleTheme}) => 
                                 }`}>
                                     <LuHousePlus className='text-xl'/> {showSidebar ? '' : 'Unit'}
                                 </NavLink>
-                                <NavLink to='/landlords' className={({isActive}) => `flex border px-3 py-1 rounded items-center gap-3 ${
-                                    isActive ? 'border-l-5 border-blue-400 text-blue-400'
-                                    : 'border-transparent hover:border-b-2 hover:border-gray-400 dark:hover:border-gray-500'
-                                }`}>
-                                    <BsPersonBoundingBox className='text-xl'/> {showSidebar ? '' : 'Landlords'}
-                                </NavLink>
+                                
                             </div>
                         </div>
 
@@ -145,7 +140,7 @@ const Sidebar = ({showSidebar, setShowSidebar,theme, setTheme, toggleTheme}) => 
                         }`}>
                             <FiSettings className='text-xl'/> {showSidebar ? '' : 'Settings'}
                         </NavLink>
-                        <NavLink to='/settings' className={({isActive}) => `flex border text-red-500 px-3 py-1 rounded items-center gap-3 ${
+                        <NavLink to='/logout' className={({isActive}) => `flex border text-red-500 dark:text-red-700 px-3 py-1 rounded items-center gap-3 ${
                             isActive ? 'border-l-5 border-red-600 text-red-600'
                             : 'border-transparent hover:border-red-600 hover:text-red-600'
                         }`}>

@@ -30,7 +30,7 @@ const Unit = () => {
     const [searchDropdown, setSearchDropdown] = useState(false)
     const {propertyFilter} = usePropertyFilter()
 
-    const {units, count, deleteRecord} = useUnit(page, filter, search, resultId, sortField, sortDirection)
+    const {units, count, loading, deleteRecord} = useUnit(page, filter, search, resultId, sortField, sortDirection)
     const {suggestions} = useSuggestions(search)
 
     const PAGE_SIZE = 10
@@ -137,7 +137,7 @@ const Unit = () => {
                 </div>
 
                 <div className='flex justify-between'>
-                    <div className='flex gap-3 z-80'>
+                    <div className='flex gap-3 z-30'>
                         <div className='flex gap-3 space-y-2'>
                             <FilterDropdown
                                 label='All Properties'
@@ -192,7 +192,7 @@ const Unit = () => {
             </section>
 
             <UnitData units={units} count={count} deleteRecord={deleteRecord}
-                sortField={sortField} sortDirection={sortDirection} handleSort={handleSort} />
+                sortField={sortField} loading={loading} sortDirection={sortDirection} handleSort={handleSort} />
             <div>
                 <PaginationFull page={page} totalPages={totalPages} onPageChange={onPageChange} />
             </div>

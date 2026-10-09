@@ -11,8 +11,17 @@ class TenantSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Tenant
-        fields = ['id', 'property_obj', 'property_name', 'unit_number', 'full_name', 'rent', 'rent_status', 'id_number',
+        fields = ['id', 'property_obj', 'unit', 'property_name', 'unit_number', 'full_name', 'first_name', 'last_name', 'rent', 'rent_status', 'id_number',
                   'phone', 'move_in_date', 'balance',  'created_at', 'updated_at']
+
+    def validate_unit(self, unit):
+        if self.instance and self.instance.unit_id == unit.id:
+            return unit
+
+        if unit.unit_status == 'occupied':
+            raise serializers.ValidationError('Unit Already Exists')
+
+        return unit
 
     def get_property_name(self, obj):
         return f"{obj.property_obj.landlord.first_name} {obj.property_obj.landlord.last_name}"

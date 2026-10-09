@@ -13,13 +13,14 @@ import Stats from '../../components/Stats'
 import { RiExportFill } from "react-icons/ri";
 import { FaPlus } from "react-icons/fa6";
 import FilterDropdown from '../../components/FilterDropdown'
-import propertyFilter from '../../components/usePropertyFilter'
+import usePropertyFilter from '../../components/usePropertyFilter'
 import Pagination from '../../components/Pagination'
 import useReports from './useReports'
 import { BsBuildingsFill } from "react-icons/bs";
 import { FaBuildingUser } from "react-icons/fa6";
 import { BsBuildingFillAdd } from "react-icons/bs";
 import { HiBuildingOffice2 } from "react-icons/hi2";
+import {Link} from 'react-router-dom'
 
 const Property = () => {
     const [page, setPage] = useState(1)
@@ -27,7 +28,10 @@ const Property = () => {
     const [searchDropdown, setSearchDropdown] = useState(false)
     const [filter, setFilter] = useState({})
     const [resultId, setResultId] = useState(null)
-    const {property, count} = useProperty(page, search, resultId)
+    const [sortField, setSortField] = useState('')
+    const [sortDirection, setSortDirection] = useState('asc')
+    const {propertyFilter} = usePropertyFilter()
+    const {property, fetchData, deleteRecord, loading, count} = useProperty(page, search, filter, resultId, sortField, sortDirection)
     const {getColorFromName, getInitials} = NameColor()
     const {suggestions} = useSuggestions(search)
     const {reports} = useReports()
@@ -41,8 +45,17 @@ const Property = () => {
 
     const propertyOptions = [
         {value: '', label: 'All Properties'},
-        ...(Array.isArray(propertyFilter) ? propertyFilter : []).map(item =>({value: item.id, label: item.landlord_name}))
+        ...(Array.isArray(propertyFilter) ? propertyFilter : []).map(item =>({value: item.landlord_name, label: item.landlord_name}))
     ]
+
+    const handleSort = (field) => {
+        if (sortField === field) {
+            setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc')
+        } else {
+            setSortField(field)
+            setSortDirection('asc')
+        }
+    }
 
     return (
         <div>
@@ -107,14 +120,14 @@ const Property = () => {
                 </div>
 
                 <div className='flex justify-between'>
-                    <div className='flex gap-3 z-50'>
+                    <div className='flex gap-3 z-30'>
                         <div className='flex gap-3 space-y-2'>
                             <FilterDropdown
                                 label='All Properties'
                                 options={propertyOptions}
                                 value={filter.landlord__first_name}
                                 onChange={(item) => setFilter(prev => ({ ...prev, landlord__first_name: item }))}
-                                width={`min-w-[180px]`}
+                                width={`min-w-[200px]`}
                             />
                         </div>
                     </div>
@@ -134,18 +147,19 @@ const Property = () => {
                                 <p>Export</p>
                             </span>
                         </span>
-                        <span className='rounded px-3 py-1 cursor-pointer bg-blue-600 text-white font-semibold'>
-                            <span className='flex items-center gap-2'>
+                        <Link to='/propertyForm'  className='rounded px-3 py-1 bg-blue-600 text-white font-semibold'>
+                            <div className='flex items-center gap-2 cursor-pointer'>
                                 <FaPlus className='text-xl'/>
                                 <p>Create</p>
-                            </span>
-                        </span>
+                            </div>
+                        </Link>
                     </div>
                     
                 </div>
 
             </section>
-            <PropertyData property={property} getColorFromName={getColorFromName} getInitials={getInitials} />
+            <PropertyData property={property} getColorFromName={getColorFromName}
+                 loading={loading} sortField={sortField} deleteRecord={deleteRecord} sortDirection={sortDirection} handleSort={handleSort} getInitials={getInitials} />
             
             <div>
                 <PaginationFull page={page} totalPages={totalPages} onPageChange={onPageChange} />

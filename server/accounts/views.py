@@ -10,10 +10,11 @@ from rest_framework.response import Response
 from rest_framework.generics import GenericAPIView
 from rest_framework.decorators import api_view, permission_classes
 import random
+from rest_framework_simplejwt.views import TokenRefreshView
 
 # Create your views here.
 class UserRegistrationAPIView(GenericAPIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     serializer_class = UserRegistrationSerializer
 
     def post(self, request):
@@ -27,14 +28,15 @@ class UserRegistrationAPIView(GenericAPIView):
         return Response(data, status=status.HTTP_201_CREATED)
 
 class UserLoginAPIView(GenericAPIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     serializer_class = UserLoginSerializer
 
     def post(self, request):
-        serializer = UserLoginSerializer(data=request.data)
+        serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        user = serializer.save()
-        data = serializer.data
+        user = serializer.validated_data['user']
+        response_serializer = UserSerializer(user) 
+        data = response_serializer.data
         token = RefreshToken.for_user(user)
         data['token'] = {'refresh': str(token), 'access': str(token.access_token)}
 

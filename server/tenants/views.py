@@ -4,7 +4,7 @@ from .models import Tenant
 from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.generics import ListAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.decorators import api_view, permission_classes
 from django.db.models import Q, Sum, F
 import django_filters
@@ -28,7 +28,7 @@ class TenantFilter(django_filters.FilterSet):
             latest_rent_status=Subquery(latest_payment.values('rent_status')[:1])
         ).filter(latest_rent_status=value)
     
-class TenantListView(ListAPIView):
+class TenantListView(ListCreateAPIView):
     permission_classes = [AllowAny]
     serializer_class = TenantSerializer
     queryset = Tenant.objects.all()
@@ -36,6 +36,12 @@ class TenantListView(ListAPIView):
     search_fields = ['property_obj__landlord__first_name', 'property_obj__landlord__last_name', 'first_name', 'last_name']
     ordering_fields = ['unit__unit_number', 'property_obj__landlord__first_name', 'first_name', 'payments__rent']
     filterset_class = TenantFilter
+
+    def post(self, request, *args, **kwargs):
+        serializer = TenantSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 class TenantDetailView(RetrieveUpdateDestroyAPIView):
     permission_classes = [AllowAny]
@@ -94,7 +100,7 @@ def tenant_reports(request):
 
     total_occupied = Tenant.objects.filter(unit__unit_status='occupied').count() or 0
 
-    occupied_percentage = round((total_occupied / total_tenants) * 100)
+    occupied_percentage =  round((total_occupied / total_tenants) * 100) if total_tenants else 0
    
     return Response({
         'total_tenants': f'{total_tenants:,}',

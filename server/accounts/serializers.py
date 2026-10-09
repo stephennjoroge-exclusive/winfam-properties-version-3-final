@@ -12,7 +12,7 @@ class TenantAvatarSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'first_name', 'last_name', 'email', 'is_active', 'is_staff']
+        fields = ['id', 'first_name', 'last_name', 'email', 'role', 'is_active', 'is_staff']
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password1 = serializers.CharField(write_only=True)
@@ -20,15 +20,15 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'first_name', 'last_name', 'email', 'is_active', 'is_staff', 'password1', 'password2']
+        fields = ['id', 'first_name', 'last_name', 'email', 'role', 'is_active', 'is_staff', 'password1', 'password2']
 
     def validate(data, attrs):
         if attrs['password1'] != attrs['password2']:
             raise serializers.ValidationError('Passwords do not match')
 
-        password = attrs.get('password', '')
+        password = attrs.get('password1', '')
         if len(password) < 8:
-            raise serializers.ValidateError('Passwords has to be more than 8 characters')
+            raise serializers.ValidationError('Passwords has to be more than 8 characters')
         return attrs
 
     def create(self, validated_data):
@@ -45,5 +45,5 @@ class UserLoginSerializer(serializers.Serializer):
         user = authenticate(**data)
         if user and user.is_active:
             data['user'] = user
-            return user
-        return serializers.ValidationError('Incorrect Information')
+            return data
+        raise serializers.ValidationError('Incorrect Information')

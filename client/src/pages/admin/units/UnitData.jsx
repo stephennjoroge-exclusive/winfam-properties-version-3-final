@@ -12,7 +12,7 @@ import { FaSort } from "react-icons/fa6";
 import { FaSortDown } from "react-icons/fa6";
 import { GoDotFill } from "react-icons/go";
 
-const UnitData = ({units, deleteRecord, sortField, sortDirection, handleSort}) => {
+const UnitData = ({units, deleteRecord, sortField, sortDirection, loading, handleSort}) => {
     const [openRowId, setOpenRowId] = useState(false)
     const [deleteModal, setDeleteModal] = useState(false)
     const [selectedIds, setSelectedIds] = useState([])
@@ -49,9 +49,17 @@ const UnitData = ({units, deleteRecord, sortField, sortDirection, handleSort}) =
                     </tr>
                 </thead>
                 <thead>
-                    {Array.isArray(units) && units.length > 0 ? (
+                    {loading ? (
+                        <tr>
+                            <td colSpan={8} className='py-8 px-3 text-center'>
+                                <div className='flex justify-center'>
+                                    <div className='animate-spin border-2 border-t-transparent h-6 w-6 border-blue-500 rounded-full'></div>
+                                </div>
+                            </td>
+                        </tr>
+                    ) : Array.isArray(units) && units.length > 0 ? (
                         units.map((item, index) => (
-                            <tr key={item.id} className={`relative dark:bg-gray-900 ${selectedIds.includes(item.id) 
+                            <tr key={item.id} className={`relative capitalize dark:bg-gray-900 ${selectedIds.includes(item.id) 
                                 ? 'bg-blue-200 border-l-4 border-blue-500 dark:border-teal-600 dark:bg-teal-950'
                                 : openRowId === item.id
                                 ? item.rent_status === 'overdue'
@@ -71,7 +79,7 @@ const UnitData = ({units, deleteRecord, sortField, sortDirection, handleSort}) =
                                 ? 'bg-amber-50 border-l-4 border-amber-500'
                                 : 'bg-blue-50'
                             }`}>
-                                <td className='py-4 px-3 border-b border-gray-200 dark:border-gray-800'><input  
+                                <td className='py-4 px-3 border-b border-white dark:border-gray-800'><input  
                                     onChange={() => {toggleRow(item.id)}} checked={selectedIds.includes(item.id)} 
                                     type="checkbox"/>
                                 </td>
@@ -159,8 +167,10 @@ const UnitData = ({units, deleteRecord, sortField, sortDirection, handleSort}) =
                         
                     ) : (
                         <tr key={``} className='relative text-center'>
-                            <td colSpan={6} className='py-4 px-3 text-center text-gray-500'>
-                                No records found
+                            <td colSpan={9}>
+                                <div className='flex justify-center mt-3'>
+                                    <div className='animate-spin border-2 border-t-transparent h-6 w-6 border-blue-500 rounded-full'></div>
+                                </div>
                             </td>
                         </tr>
                     )}

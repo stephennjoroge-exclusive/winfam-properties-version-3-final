@@ -10,11 +10,17 @@ import { MdOutlineMoneyOff } from "react-icons/md";
 import { FaSort } from "react-icons/fa6";
 import { FaSortDown } from "react-icons/fa6";
 import { TiArrowSortedUp } from "react-icons/ti";
+import NameColor from '../../components/NameColor'
+import useReports from './useReports'
+import { IoSearchSharp } from "react-icons/io5";
 
 const PropertyDetails = ({id, setOpenProperty}) => {
     const [details, setDetails] = useState([])
     const [loading, setLoading] = useState(false)
     const [errors, setErrors] = useState(null)
+    const [openSearch, setOpenSearch] = useState(false)
+    const {reports} = useReports()
+    const {getInitials, getColorFromName} = NameColor()
     const [sortField, setSortField] = useState('unit_number')
     const [sortDirection, setSortDirection] = useState('asc')
 
@@ -104,14 +110,29 @@ const PropertyDetails = ({id, setOpenProperty}) => {
                 </header>
 
                 <div className='flex items-center justify-between mx-3 my-3'>
-                    <div className='flex w-[30%] relative items-center px-3 h-9 py-1 border rounded border-gray-300 dark:border-gray-700'>
-                        <input placeholder='Search tenant...' type="search" className='border:none w-full outline:none dark:text-gray-300 focus:outline-none' />
-                    </div>
+                    <div className='relative'>
+                        <div className='flex  items-center px-2 py-1 border rounded border-gray-300 dark:border-gray-700'>
+                            <IoSearchSharp onClick={() => {setOpenSearch(prev => !prev)}} className='text-2xl text-gray-500'/>
+                        </div>
 
-                    <div className='flex justify-center w-[50%] items-center gap-2'>
+                        <div className={`absolute origin-left transition ease-in-out left-full flex items-center px-3 top-0 w-96 h-9 rounded shadow-xl z-60 bg-blue-50 border border-gray-300
+                            ${openSearch 
+                                ? 'opacity-100 scale-100'
+                                : 'opacity-0 scale-0'
+                            }`}>
+                            <input placeholder='Search tenant...' type="search" className='border:none w-full outline:none dark:text-gray-300 focus:outline-none' />
+                        </div>   
+                    </div>
+                    
+
+                    <div className='flex justify-center items-center gap-2'>
                         <div className='flex gap-1 px-2 py-1 font-semibold bg-blue-100 text-blue-700 dark:text-blue-300 dark:border border-blue-700 rounded dark:bg-transparent '>
                             <FaHouseChimneyUser className='text-blue-700 dark:text-blue-400 text-xl'/>
                             <p>Units: 350</p>
+                        </div>
+                        <div className='flex gap-1 px-2 py-1 font-semibold bg-amber-100 rounded dark:border text-amber-700 dark:text-amber-300  border-green-700 dark:bg-transparent'>
+                            <GiTakeMyMoney className='text-amber-700 dark:text-amber-400 text-xl'/>
+                            <p>Ksh. {reports.computed_total_rent_payable_per_property} Rent Payable</p>
                         </div>
                         <div className='flex gap-1 px-2 py-1 font-semibold bg-green-100 rounded dark:border text-green-700 dark:text-green-300  border-green-700 dark:bg-transparent'>
                             <GiTakeMyMoney className='text-green-700 dark:text-green-400 text-xl'/>
@@ -139,7 +160,11 @@ const PropertyDetails = ({id, setOpenProperty}) => {
                             <thead className='top-0 sticky'>
                                 <tr className='border-b border-white h-10 duration-300 transition-all dark:border-gray-800 text-gray-500 bg-blue-100 dark:bg-gray-800 dark:text-gray-400 shadow'>
                                     <th className='text-start px-2 py-1' onClick={() => handleSort('unit_number')}><span className='flex items-center gap-3'>Unit No {arrow('unit_number')}</span></th>
-                                    <th className='text-start px-2 py-1' onClick={() => handleSort('rent_payable')}><span className='flex items-center gap-3'>Tenant Name {arrow('tenant')}</span></th>
+                                    <th className='text-start px-2 py-1' onClick={() => handleSort('rent_payable')}>
+                                        <span className='flex items-center gap-3'>
+                                            Tenant Name {arrow('tenant')}
+                                        </span>
+                                    </th>
                                     <th className='text-start px-2 py-1' onClick={() => handleSort('tenant')}><span className='flex items-center gap-3'>Rent Payable {arrow('rent_payable')}</span></th>
                                     <th className='text-start px-2 py-1' onClick={() => handleSort('balance_brought_forward')}><span className='flex items-center gap-3'>Balance (B/F) {arrow('balance_brought_forward')}</span></th>
                                     <th className='text-start px-2 py-1' onClick={() => handleSort('rent')}><span className='flex items-center gap-3'>Rent {arrow('rent')}</span></th>
@@ -153,8 +178,15 @@ const PropertyDetails = ({id, setOpenProperty}) => {
                                 {Array.isArray(details) && details.length > 0 ? (
                                     details.map((item, index) => (
                                         <tr key={item.id}>
-                                            <td className='py-4 px-3 border-b border-white dark:border-gray-800'>{item.unit_number}</td>
-                                            <td className='py-4 px-3 border-b border-white dark:border-gray-800'>{item.tenant}</td>
+                                            <td className='py-4 px-3 border-b border-white capitalize dark:border-gray-800'>
+                                                <div className='flex items-center gap-3'>
+                                                    <span className={`${getColorFromName(item.tenant_name)} h-9 w-9 text-white font-bold rounded-full flex items-center justify-center`}>
+                                                        {getInitials(item.tenant_name)}
+                                                    </span>
+                                                    {item.tenant_name}
+                                                </div>
+                                            </td>
+                                            <td className='py-4 px-3 border-b border-white dark:border-gray-800'>{item.unit_number_unit}</td>
                                             <td className='py-4 px-3 border-b border-white dark:border-gray-800'><span className='text-sm'>Ksh.</span> {item.rent_payable}</td>
                                             <td className='py-4 px-3 border-b border-white dark:border-gray-800'><span className='text-sm'>Ksh.</span>{item.balance_brought_forward}</td>
                                             <td className='py-4 px-3 border-b border-white dark:border-gray-800'><span className='text-sm'>Ksh.</span>{item.rent}</td>

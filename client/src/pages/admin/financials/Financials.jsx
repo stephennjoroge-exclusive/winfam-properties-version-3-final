@@ -17,6 +17,7 @@ import useReports from './useReports'
 import { MdAttachMoney } from "react-icons/md";
 import { GiTakeMyMoney } from "react-icons/gi";
 import { GiReceiveMoney } from "react-icons/gi";
+import {Link} from 'react-router-dom'
 
 const Financials = () => {
     const [page, setPage] = useState(1)
@@ -26,7 +27,7 @@ const Financials = () => {
     const [searchDropdown, setSearchDropdown] = useState(false)
     const [filter, setFilter] = useState({})
     const [resultId, setResultId] = useState(null)
-    const {financials, count, errors, previous, deleteRecord} = useFinancials(page, filter, search, resultId, sortField, sortDirection)
+    const {financials, count, loading, errors, previous, deleteRecord} = useFinancials(page, filter, search, resultId, sortField, sortDirection)
     const {suggestions} = useSuggestions(search)
     const {propertyFilter} = usePropertyFilter()
     const closeRef = useRef(null)
@@ -224,19 +225,18 @@ const Financials = () => {
                                 <p>Export</p>
                             </span>
                         </span>
-                        <span className='rounded px-3 py-1 cursor-pointer bg-blue-600 text-white font-semibold'>
+                        <Link to="/paymentform" className='rounded px-3 py-1 cursor-pointer bg-blue-600 text-white font-semibold'>
                             <span className='flex items-center gap-2'>
                                 <FaPlus className='text-xl'/>
                                 <p>Create</p>
                             </span>
-                        </span>
+                        </Link>
                     </div>
                    
                 </div>
-               
-
             </section>
-            <FinancialData count={count} onPageChange={onPageChange} handleSort={handleSort} sortField={sortField} sortDirection={sortDirection} financials={financials} deleteRecord={deleteRecord} page={page} setPage={setPage}
+
+            <FinancialData count={count} onPageChange={onPageChange} loading={loading} handleSort={handleSort} sortField={sortField} sortDirection={sortDirection} financials={financials} deleteRecord={deleteRecord} page={page} setPage={setPage}
                 totalPages={totalPages} />
         </div>
     )

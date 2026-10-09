@@ -7,7 +7,7 @@ class UtilitySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Utility
-        fields = ['id', 'property_name', 'unit_number', 'item', 'previous_reading', 'current_reading', 'created_at', 'updated_at']
+        fields = ['id', 'property_name', 'unit_number', 'item', 'previous_reading', 'current_reading', 'unit_cost', 'created_at', 'updated_at']
 
     def get_property_name(self, obj):
         return f'{obj.property_obj.landlord.first_name} {obj.property_obj.landlord.last_name}'

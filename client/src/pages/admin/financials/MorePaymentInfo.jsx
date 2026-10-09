@@ -4,6 +4,7 @@ import axios from 'axios'
 import NameColor from '../../components/NameColor'
 import ViewAllPayments from './ViewAllPayments'
 import useCloseRef from '../../components/useCloseRef'
+import { RiArrowRightUpFill } from "react-icons/ri";
 
 const MorePaymentInfo = ({id}) => {
     const [payment, setPayment] = useState(null)
@@ -61,7 +62,10 @@ const MorePaymentInfo = ({id}) => {
                         <p className='font-semibold text-xl'>{payment.tenant_snapshot}</p>
                     </div>
                     <div className='text-blue-500 dark:hover:text-blue-300 dark:text-blue-400 underline hover:text-blue-600'>
-                        <span onClick={() => {setAllPayments(true)}} className='cursor-pointer'>View Payments</span>
+                        <span onClick={() => {setAllPayments(true)}} className='cursor-pointer flex items-center'>
+                            <p>View Payments</p>
+                            <RiArrowRightUpFill className='text-xl'/>
+                        </span>
 
                         {allPayments && (
                             <div>

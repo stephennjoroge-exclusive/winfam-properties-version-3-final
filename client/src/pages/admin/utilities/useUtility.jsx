@@ -2,7 +2,7 @@ import React from 'react'
 import {useState, useEffect} from 'react'
 import axios from 'axios'
 
-const useUtility = (search='', page) => {
+const useUtility = (search='', page, filter, sortField, sortDirection) => {
     const [utility, setUtility] = useState([])
     const [loading, setLoading] = useState(false)
     const [errors, setErrors] = useState(null)
@@ -16,10 +16,12 @@ const useUtility = (search='', page) => {
         const fetchData = async() => {
             setLoading(true)
 
+            const ordering = sortDirection === 'desc' ? `-${sortField}` : sortField
+
             try{
                 const res = await axios.get('http://127.0.0.1:8000/api/utilities/', {
                     signal: controller.signal,
-                    params: {search, page}
+                    params: {search, page, ordering, ...filter}
                 })
                 setUtility(res.data.results ?? res.data ?? [])
                 setCount(res.data.count ?? 0)
@@ -29,6 +31,8 @@ const useUtility = (search='', page) => {
                 if (axios.isCancel(err)) return;
                 const message = err.message || 'something went wrong while fetching the data'
                 setErrors(message)
+            } finally {
+                setLoading(false)
             }
         }
 
@@ -36,7 +40,7 @@ const useUtility = (search='', page) => {
         return () => {
             controller.abort()
         }
-    }, [search, page])
+    }, [search, page, sortField, sortDirection, filter])
 
     return {utility, loading, errors, count, next, previous}
     

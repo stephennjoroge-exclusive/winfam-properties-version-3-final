@@ -18,7 +18,7 @@ class Tenant(models.Model):
     # profile_scan = models.ImageField()
 
     class Meta:
-        ordering = ['property_obj']
+        ordering = ['-created_at']
 
     def __str__(self):
         return f"{self.first_name}"

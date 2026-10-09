@@ -22,7 +22,7 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         def split_name(name):
             if pd.isna(name) or not str(name).strip():
-                return '', '', ''
+                return '', ''
     
             full_name = str(name).lower().strip().split()
             first_name = full_name[0]
@@ -102,11 +102,15 @@ class Command(BaseCommand):
                 month_match = re.search(r'(?i)(jan\w*|feb\w*|mar\w*|apr\w*|may\w*|jun\w*|jul\w*|aug\w*|sep\w*|oct\w*|nov\w*|dec\w*)\s+(\d{2,4})$', clean_name)
 
                 if month_match:
-                    month_str = month_match.group(1)
+                    month_str = month_match.group(1).strip()
                     year_str = month_match.group(2)
+
+                    if month_str.lower().startswith('sept'):
+                        month_str = 'Sep'
 
                     if len(year_str) == 2:
                         year_str = '20' + year_str
+
                     try:
                         payment_date = datetime.strptime(f"01 {month_str} {year_str}", '%d %B %Y').date()
                     except ValueError:

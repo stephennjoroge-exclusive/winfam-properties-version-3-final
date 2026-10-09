@@ -10,6 +10,8 @@ from django.db.models import OuterRef, Subquery
 from rest_framework.decorators import api_view, permission_classes
 import django_filters
 from django.db.models import Q
+from django.db.models import IntegerField
+from django.db.models.functions import Cast
 
 # Create your views here.
 class UnitFilter(django_filters.FilterSet):
@@ -28,14 +30,20 @@ class UnitFilter(django_filters.FilterSet):
             latest_rent_status = Subquery(latest_payment.values('rent_status')[:1])
         ).filter(latest_rent_status=value)
 
+    
 class UnitListView(ListAPIView):
     permission_classes = [AllowAny]
     serializer_class = UnitSerializer
     queryset = Unit.objects.prefetch_related('property_obj').all()
 
     search_fields = ['id', 'unit_number', 'property_obj__landlord__first_name', 'property_obj__landlord__last_name']
-    ordering_fields = ['unit_number', 'property_obj__landlord__first_name']
+    ordering_fields = [ ('unit_number_int', 'unit_number'), ('property_obj__landlord__first_name')]
     filterset_class = UnitFilter
+
+    def get_queryset(self):
+        return Unit.objects.prefetch_related('property_obj').annotate(
+            unit_number_int=Cast('unit_number', IntegerField())
+        )
 
 class UnitDetailView(RetrieveDestroyAPIView):
     permission_classes = [AllowAny]

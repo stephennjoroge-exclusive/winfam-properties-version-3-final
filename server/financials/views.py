@@ -3,7 +3,7 @@ from .serializers import PaymentSerializer
 from .models import Payment
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.generics import ListAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes
 from django.db.models import Q, Sum, F
@@ -21,7 +21,7 @@ class PaymentFilter(django_filters.FilterSet):
         model = Payment
         fields = ['id', 'property_obj', 'tenant', 'rent_status', 'completion', 'date', 'month', 'year']
 
-class PaymentListView(ListAPIView):
+class PaymentCreateListView(ListCreateAPIView):
     permission_classes = [AllowAny]
     serializer_class = PaymentSerializer
     queryset = Payment.objects.all()
@@ -36,7 +36,12 @@ class PaymentListView(ListAPIView):
     ordering_fields = ['property_obj', 'unit', 'date', 'tenant', 'rent_payable', 'rent', 'completion_progress']
     filterset_class = PaymentFilter
 
-
+    def post(self, request):
+        serializer = PaymentSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        
 class PaymentDetailView(RetrieveUpdateDestroyAPIView):
     permission_classes = [AllowAny]
     serializer_class = PaymentSerializer

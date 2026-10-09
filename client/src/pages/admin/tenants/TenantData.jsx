@@ -8,9 +8,13 @@ import {useState} from 'react'
 import { TiArrowSortedUp } from "react-icons/ti";
 import { FaSort } from "react-icons/fa6";
 import { FaSortDown } from "react-icons/fa6";
+import DeleteModal from '../../components/DeleteModal';
+import MoreTenantInfo from './MoreTenantInfo';
 
-const TenantData = ({tenant, getColorFromName, getInitials, sortField, sortDirection, handleSort}) => {
+const TenantData = ({tenant, loading, getColorFromName, deleteRecord, getInitials, sortField, sortDirection, handleSort}) => {
     const [selectedIds, setSelectedIds] = useState([])
+    const [deleteModal, setDeleteModal] = useState(false)
+    const [openRowId, setOpenRowId] = useState(null)
 
     const allIds = Array.isArray(tenant) ? tenant.map((item) => item.id) : []
     const allSelected = allIds.length > 0 && selectedIds.length === allIds.length
@@ -44,9 +48,18 @@ const TenantData = ({tenant, getColorFromName, getInitials, sortField, sortDirec
                     </tr>
                 </thead>
                 <tbody>
-                    {Array.isArray(tenant) && tenant.length > 0 ? (
+                    {loading ? (
+                        <tr>
+                            <td colSpan={8} className='py-8 px-3 text-center'>
+                                <div className='flex justify-center'>
+                                    <div className='animate-spin h-6 w-6 border-2 border-blue-500 border-t-transparent rounded-full'></div>
+                                </div>
+                            </td>
+                        </tr>
+
+                    ): Array.isArray(tenant) && tenant.length > 0 ? (
                         tenant.map((item, index) => (
-                            <tr className={`relateive ${selectedIds.includes(item.id) 
+                            <tr key={item.id} className={`relative ${selectedIds.includes(item.id) 
                                 ? 'bg-blue-200 border-l-4 border-blue-500 dark:bg-teal-900 dark:border-teal-600'
                                 : item.rent_status === 'pending'
                                     ? 'bg-amber-50 border-l-4 border-amber-500 dark:bg-transparent'
@@ -60,7 +73,7 @@ const TenantData = ({tenant, getColorFromName, getInitials, sortField, sortDirec
                                     onChange={() => {toggleRow(item.id)}} checked={selectedIds.includes(item.id)} 
                                     type="checkbox"/>
                                 </td>  
-                                <td className='py-4 px-3 border-b border-white dark:border-gray-800'>
+                                <td className='py-4 px-3 border-b border-white capitalize dark:border-gray-800'>
                                         <div className='flex items-center gap-3'>
                                             <span className={`${getColorFromName(item.property_name)} h-8 w-8 flex items-center justify-center rounded-full font-bold bg-blue-500 text-white`}>
                                                 {getInitials(item.full_name)} 
@@ -68,7 +81,7 @@ const TenantData = ({tenant, getColorFromName, getInitials, sortField, sortDirec
                                             {item.full_name || '-'}
                                     </div>
                                 </td>                    
-                                <td className='py-4 px-3 border-b border-white dark:border-gray-800'>
+                                <td className='py-4 px-3 border-b border-white capitalize dark:border-gray-800'>
                                     <div className='flex items-center gap-3'>
                                         <span className={`${getColorFromName(item.property_name)} h-8 w-8 flex items-center justify-center rounded-full font-bold bg-blue-500 text-white`}>
                                             {getInitials(item.property_name)} 
@@ -107,18 +120,36 @@ const TenantData = ({tenant, getColorFromName, getInitials, sortField, sortDirec
                                 <td className='relative py-4 px-3 border-b border-white dark:border-gray-800'>
                                     <div className='flex gap-3 text-lg'>
                                         <span className='text-blue-500'><FiEdit/></span>
-                                        <span className='text-red-500'><RiDeleteBin6Line/></span>
-                                        <span><IoIosArrowDown/></span>
+                                        <span onClick={() => {setDeleteModal(item.id)}} className='text-red-600 cursor-pointer'><RiDeleteBin6Line/>
+                                        
+                                            {deleteModal === item.id && (
+                                                <div>
+                                                    <DeleteModal deleteRecord={() => deleteRecord(item.id)} deleteModal={deleteModal} entity={item.full_name} setDeleteModal={setDeleteModal}/>
+                                                </div>
+                                            )}
+                                        </span>
+
+                                       <span onClick={() => {setOpenRowId(openRowId === item.id ? null : item.id)}}><IoIosArrowDown className={`${openRowId === item.id ? 'rotate-180 duration-300 transition-300 cursor-pointer' : 'rotate-0 duration-300 cursor-pointer transition-all'}`}/></span>
                                         <span><HiDotsHorizontal/></span>
                                     </div>
                                 </td>
 
-
+                                {openRowId === item.id && (
+                                    <td className='shadow-lg dark:shadow-gray-800 border rounded border-gray-300 dark:border-gray-700 shadow-gray-400 left-0 right-0 absolute z-50 top-full'>
+                                        <div className='bg-blue-50 px-3 py-2 dark:bg-gray-900 h-80 w-full '>
+                                            <MoreTenantInfo id={item.id}/>
+                                        </div>
+                                    </td>
+                                )}
                             </tr>
                         ))
                     ): (
                        <tr>
-                            <td colSpan={6} className='py-4 px-3 text-center text-gray-500'></td>
+                            <td colSpan={9}>
+                                <div className='flex justify-center mt-3'>
+                                    <div className='animate-spin border-2 border-t-transparent h-6 w-6 border-blue-500 rounded-full'></div>
+                                </div>
+                            </td>
                        </tr>
                     )}
                 </tbody>

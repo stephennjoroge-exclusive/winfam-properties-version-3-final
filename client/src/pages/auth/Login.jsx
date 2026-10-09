@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import useProfile from './useProfile'
 import { FaHouseUser } from "react-icons/fa";
 import NameColor from '../components/NameColor';
@@ -10,11 +10,92 @@ import { MdLockReset } from "react-icons/md";
 import { FaArrowRightLong } from "react-icons/fa6";
 import { FcGoogle } from "react-icons/fc";
 import { FaFacebook } from "react-icons/fa";
+import {Link, useNavigate} from 'react-router-dom'
+import toast from 'react-hot-toast'
+import axios from 'axios'
+import { FaRegEye } from "react-icons/fa";
+import { FaEyeSlash } from "react-icons/fa";
+import getErrorMessage from '../components/getErrorMessage';
 
 const Login = () => {
     const {profile} = useProfile()
     const {getColorFromName, getInitials} = NameColor()
+    const [loading, setLoading] = useState(false)
+    const navigate = useNavigate()
+    const [success, setSuccess] = useState('')
+    const [errors, setErrors] = useState(null)
+    const [showPassword, setShowPassword] = useState(false)
+    const [formData, setFormData] = useState({
+        email: '',
+        password: ''
+    })
 
+    const handleChange = (e) => {
+        setFormData({...formData, [e.target.name]: e.target.value})
+    }
+
+    const handleSubmit = async(e) => {
+        e.preventDefault()
+        if (loading){
+            return
+        }
+
+        setErrors(null)
+        setLoading(true)
+        setSuccess(null)
+
+        try{
+            const res = await axios.post('http://127.0.0.1:8000/api/accounts/login/', formData);
+            toast.success('Login Successful...', {
+                style: {
+                    background: '#3b8132',
+                    color: '#fff',
+                    borderRadius: '12px',
+                    padding: '15px',
+                    fontSize: '16px',
+                },
+                iconTheme: {
+                    primary: '#fff',
+                    secondary: '#3b8132',
+                },
+            })
+            localStorage.setItem('accessToken', res.data.token.access)
+            localStorage.setItem('refreshToken', res.data.token.refresh)
+            localStorage.setItem('user', JSON.stringify(res.data));
+
+            setFormData({
+                email: '',
+                password: ''
+            })
+
+            setTimeout(() => {
+                navigate('/dashboard')
+            }, 2000)
+
+        } catch(err){
+            console.log('Error during login!', err?.response?.data)
+            const message = getErrorMessage(err)
+
+            setErrors(message)
+
+            toast.error(message, {
+                style: {
+                    background: '#d1001f',
+                    color: '#fff',
+                    borderRadius: '12px',
+                    padding: '15px',
+                    fontSize: '16px',
+                },
+                iconTheme: {
+                    primary: '#fff',
+                    secondary: '#d1001f',
+                },
+            })
+            
+        } finally {
+            setLoading(false)
+        }
+    }
 
     return (
         <div className='flex items-center text-gray-700 bg-blue-50'>
@@ -91,18 +172,18 @@ const Login = () => {
             </div>
             
             <div className='flex flex-col p-9  w-[50%] h-full justify-center items-center'>
-                <div className='absolute min-h-full flex items-center justify-center'>
+                <div className='absolute min-h-ful pointer-events-none flex items-center justify-center'>
                     <img src="/winfam.png" width={500} alt="" className='opacity-20 ' />
                 </div>
 
                 <div className='font-bold text-center text-4xl font-bodoni my-3'>
                     <p>Welcome Back</p>
-                    <p className='font-sans text-xl'>Login</p>
+                    <p className='font-sans text-xl text-gray-400 font-normal'>Dont have an account? <Link to='/register' className='cursor-pointer font-normal underline text-blue-500'>register</Link></p>
                 </div>
                
                
 
-                <form action="" className='w-full'>
+                <form action="" onSubmit={handleSubmit} className='w-full'>
                     <div className='space-y-5'>
                         <div className='text-xl'>
                             <label htmlFor="" className='font-semibold'>Email Address</label>
@@ -110,7 +191,7 @@ const Login = () => {
                                 <div className='pr-3'>
                                     <MdOutlineMailOutline className='text-gray-400 text-2xl'/>
                                 </div>
-                                <input placeholder={`Email Address`} type="search" className='border:none w-full outline:none dark:text-gray-300 focus:outline-none'/>
+                                <input name="email" value={formData.email} onChange={handleChange} placeholder={`Email Address`} type="email" className='border:none w-full outline:none dark:text-gray-300 focus:outline-none'/>
                             </div>
                         </div>
 
@@ -120,10 +201,13 @@ const Login = () => {
                                 <div className='pr-3'>
                                     <MdLockReset className='text-gray-400 text-3xl'/>
                                 </div>
-                                <input placeholder={`************`} type="search" className='border:none w-full outline:none dark:text-gray-300 focus:outline-none'/>
+                                <input name='password' value={formData.password} onChange={handleChange} placeholder={`************`} type={showPassword ? 'text' : 'password'} className='border:none w-full outline:none dark:text-gray-300 focus:outline-none'/>
+                                <span onClick={() => setShowPassword(!showPassword)}>{showPassword ? <FaRegEye className='cursor-pointer'/> : <FaEyeSlash className='cursor-pointer'/>}</span>
                             </div>
                         </div>
                     </div>
+
+                    {}
 
                     <div className='flex items-center justify-between text-xl my-3'>
                         <div className='flex gap-3'>
@@ -131,20 +215,25 @@ const Login = () => {
                              <p>Remember me</p>
                         </div>
                         <div>
-                            <p className='underline text-blue-500'>Forgot password?</p>
+                            <p className='underline text-blue-500 cursor-pointer'>Forgot password?</p>
                         </div>
                     </div>
 
                     <div>
-                        <button className='flex gap-3 cursor-pointer shadow-xl shadow-gray-400 outline-none border-none items-center rounded-xl text-xl font-semibold justify-center bg-blue-500 text-white h-12 w-full border'>
-                            <span>Login</span>
-                            <FaArrowRightLong />
+                        <button type='submit' disabled={loading} className='flex gap-3 cursor-pointer shadow-xl shadow-gray-400 outline-none border-none items-center rounded-xl text-xl font-semibold justify-center bg-blue-500 text-white h-12 w-full border'>
+                            {loading 
+                            ? <span className='animate-spin h-7 w-7 border-3 border-t-transparent border-white rounded-full'></span> 
+                            : <span className='flex items-center gap-2'>
+                                <span>Login</span> 
+                                <FaArrowRightLong />
+                            </span> }
+                            
                         </button>
 
                         <div className='flex gap-3 items-center my-3'>
-                            <p className='flex-1 bg-gray-300 h-px'></p>
+                            <p className='flex-1 bg-gray-400 h-px'></p>
                             <span>or continue with</span>
-                            <p className='flex-1 bg-gray-300 h-px'></p>
+                            <p className='flex-1 bg-gray-400 h-px'></p>
                         </div>
 
                         <div className='text-xl flex gap-3'>
@@ -155,7 +244,7 @@ const Login = () => {
 
                             <button className='flex items-center cursor-pointer justify-center gap-3 border bg-white border-gray-300 rounded-xl px-3 w-full py-1'>
                                 <FaFacebook className='text-3xl'/>
-                                <span>Google</span>
+                                <span>Facebook</span>
                             </button>
                         </div>
 

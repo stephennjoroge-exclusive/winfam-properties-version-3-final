@@ -8,21 +8,37 @@ from django.db.models import Subquery, OuterRef, Count, Value, IntegerField, Sum
 from django.db.models.functions import Coalesce, Concat
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.generics import ListAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.db.models import Q
 from rest_framework.decorators import api_view, permission_classes
 from datetime import datetime
+import django_filters
 
 # Create your views here.
-class PropertyListView(ListAPIView):
+class PropertyFilter(django_filters.FilterSet):
+    landlord__first_name = django_filters.CharFilter(method='filter_landlord_name')
+
+    class Meta:
+        model = Property
+        fields = ['landlord__first_name']
+
+    def filter_landlord_name(self, queryset, name, value):
+        parts = value.split()
+        q = Q()
+        for part in parts:
+            q &= (Q(landlord__first_name__icontains=part) | (Q(landlord__last_name__icontains=part)))
+        return queryset.filter(q)
+
+
+class PropertyCreateListView(ListCreateAPIView):
     permission_classes = [AllowAny]
     serializer_class = PropertySerializer
     queryset = Property.objects.all()
 
     search_fields = ['landlord__first_name']
-    ordering_fields = ['landlord', 'location', 'total_units']
-    filterset_fields = ['landlord__first_name']
+    ordering_fields = ['landlord__first_name', 'managers', 'location', 'water_rate', 'total_units', 'location']
+    filterset_class = PropertyFilter
 
     def get_queryset(self):
         units = Unit.objects.filter(property_obj=OuterRef('pk')).values('property_obj').annotate(count=Count('id')).values('count')
@@ -30,12 +46,18 @@ class PropertyListView(ListAPIView):
 
         return units_per_property
 
+    def post(self, request):
+        serializer = PropertySerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
 class PropertyDetailView(RetrieveUpdateDestroyAPIView):
     permission_classes = [AllowAny]
     serializer_class = PropertySerializer
     queryset = Property.objects.all()
 
-class PropertyFilterView(ListAPIView):
+class PropertyFilterView(ListCreateAPIView):
     permission_classes = [AllowAny]
     serializer_class = PropertySerializer
     queryset = Property.objects.all()
@@ -67,13 +89,14 @@ def property_suggestions(request):
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def property_reports(request):
-    total_properties = Property.objects.count()
-    total_caretakers = Payment.objects.filter(rent_status = 'caretaker').distinct()
+   property_count = Property.objects.count()
 
-    return Response({
-        'total_properties': total_properties,
-        'total_caretaker': total_caretakers.count()
-    })
+
+   return Response({
+       'property_count': property_count
+   })
+
+
 
 @api_view(['GET'])
 @permission_classes([AllowAny])

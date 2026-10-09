@@ -16,8 +16,26 @@ class Utility(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    class Meta:
-        ordering = ['-updated_at']
-
     def __str__(self):
         return f"{self.property_obj} {self.item}"
+
+    @property
+    def unit_cost(self):
+        if not self.current_reading:
+            return 0
+        if not self.previous_reading:
+            return 0
+        try:
+            current = float(self.current_reading)
+            previous = float(self.previous_reading)
+        except:
+            return 0
+
+        balance = current - previous
+        if balance <= 0:
+            return 0
+        UNIT_RATE = self.property_obj.water_rate
+        
+        return balance * UNIT_RATE
+
+            

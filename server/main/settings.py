@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'accounts', 
     'rest_framework', 
     'rest_framework_simplejwt', 
+    'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
     'properties',
     'landlords',
@@ -58,7 +59,7 @@ AUTH_USER_MODEL = 'accounts.User'
 
 
 REST_FRAMEWORK = {
-    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "DEFAULT_PAGINATION_CLASS": "main.pagination.FlexiblePagination",
     "PAGE_SIZE": 10,
 
     "DEFAULT_FILTER_BACKENDS": [

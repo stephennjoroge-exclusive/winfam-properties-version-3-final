@@ -3,7 +3,7 @@ from django.contrib.auth.models import BaseUserManager, PermissionsMixin, Abstra
 
 # Create your models here.
 class BaseManager(BaseUserManager):
-    def create(self, email, password=None, **kwargs):
+    def create_user(self, email, password=None, **kwargs):
         if email is None:
             raise ValueError('Email not valid')
         email = self.normalize_email(email)
@@ -18,9 +18,17 @@ class BaseManager(BaseUserManager):
         return self.create(email, password, **kwargs)
 
 class User(PermissionsMixin, AbstractBaseUser):
+    ROLE_CHOICES = (
+        ('admin', 'Admin'),
+        ('employee', 'Employee'),
+        ('landlord', 'Landlord'),
+        ('tenant', 'Tenant'),
+    )
+     
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100, null=True, blank=True)
     email = models.CharField(unique=True)
+    role = models.CharField(max_length=100, choices=ROLE_CHOICES, default="tenant")
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
 

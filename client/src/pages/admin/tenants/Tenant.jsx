@@ -20,6 +20,7 @@ import useReports from './useReports';
 import { FaArrowsDownToPeople } from "react-icons/fa6";
 import { TbBrandCashapp } from "react-icons/tb";
 import { FaPeopleRoof } from "react-icons/fa6";
+import {Link} from 'react-router-dom'
 
 const Tenant = () => {
     const [search, setSearch] = useState('')
@@ -30,7 +31,7 @@ const Tenant = () => {
     const {getInitials, getColorFromName} = NameColor()
     const [filter, setFilter] = useState({})
     const [resultId, setResultId] = useState(null)
-    const {tenant, errors, count, next, previous} = useTenant(page, filter, search, resultId, sortField, sortDirection )
+    const {tenant, loading, errors, deleteRecord, fetchData, count, next, previous} = useTenant(page, filter, search, resultId, sortField, sortDirection )
     const {propertyFilter} = usePropertyFilter()
     const closeRef = useRef(null)
     const {suggestions} = useSuggestions(search)
@@ -156,7 +157,7 @@ const Tenant = () => {
                 </div>
 
                 <div className='flex justify-between'>
-                    <div className='flex gap-3 z-80'>
+                    <div className='flex gap-3 z-30'>
                         <div className='flex gap-3 space-y-2'>
                             <FilterDropdown
                                 label='All Properties'
@@ -186,24 +187,24 @@ const Tenant = () => {
                             />
                         </div>
 
-                        <span className='rounded px-3 cursor-pointer py-1 border-2 border-blue-600 text-blue-600 dark:text-blue-500 dark:border-blue-500 font-semibold'>
+                        <button className='rounded px-3 cursor-pointer py-1 border-2 border-blue-600 text-blue-600 dark:text-blue-500 dark:border-blue-500 font-semibold'>
                             <span className='flex items-center gap-2'>
                                 <RiExportFill className='text-xl'/>
                                 <p>Export</p>
                             </span>
-                        </span>
-                        <span className='rounded px-3 py-1 cursor-pointer bg-blue-600 text-white font-semibold'>
+                        </button>
+                        <Link to="/tenantform" className='rounded px-3 py-1 cursor-pointer bg-blue-600 text-white font-semibold'>
                             <span className='flex items-center gap-2'>
                                 <FaPlus className='text-xl'/>
                                 <p>Create</p>
                             </span>
-                        </span>
+                        </Link>
                     </div>
                     
                 </div>
             </section>
             
-            <TenantData tenant={tenant} sortField={sortField} sortDirection={sortDirection} handleSort={handleSort} getColorFromName={getColorFromName} getInitials={getInitials} errors={errors} previous={previous} />
+            <TenantData tenant={tenant} sortField={sortField} deleteRecord={deleteRecord} loading={loading} sortDirection={sortDirection} handleSort={handleSort} getColorFromName={getColorFromName} getInitials={getInitials} errors={errors} previous={previous} />
 
             <div>
                 <PaginationFull page={page} totalPages={totalPages} onPageChange={onPageChange} />

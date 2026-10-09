@@ -6,7 +6,7 @@ from landlords.models import Landlord
 class Property(models.Model):
     landlord = models.ForeignKey(Landlord, on_delete=models.CASCADE, related_name='properties')
     managers = models.CharField(max_length=100, null=True, default='Winfam Properties')
-    location = models.CharField(max_length=150, default='Nairobi')
+    location = models.CharField(max_length=150, default='Nairobi', null=True)
     water_rate = models.IntegerField(default=0, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

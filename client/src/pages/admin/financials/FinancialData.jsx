@@ -13,7 +13,7 @@ import PaginationFull from '../../components/PaginationFull';
 import NameColor from '../../components/NameColor';
 import useCloseRef from '../../components/useCloseRef';
 
-const FinancialData = ({count, financials, page, setPage, totalPages, onPageChange, deleteRecord, sortField, sortDirection, handleSort}) => {
+const FinancialData = ({count, financials, page, setPage, loading, totalPages, onPageChange, deleteRecord, sortField, sortDirection, handleSort}) => {
     const [openRowId, setOpenRowId] = useState(null)
     const [selectedIds, setSelectedIds] = useState([])
     const [deleteModal, setDeleteModal] = useState(false)
@@ -68,9 +68,17 @@ const FinancialData = ({count, financials, page, setPage, totalPages, onPageChan
                 </thead>
                 
                 <tbody className=''>
-                   {Array.isArray(financials) && financials.length > 0 ? (
+                   {loading ? (
+                        <tr>
+                            <td colSpan={8} className='py-8 px-3 text-center'>
+                                <div className='flex justify-center'>
+                                    <div className='animate-spin border-2 border-t-transparent h-6 w-6 border-blue-500 rounded-full'></div>
+                                </div>
+                            </td>
+                        </tr>
+                   ):Array.isArray(financials) && financials.length > 0 ? (
                         financials.map((item) => (
-                            <tr key={item.id} className={`relative py-4 px-3 ${selectedIds.includes(item.id)
+                            <tr key={item.id} className={`relative py-4 capitalize px-3 ${selectedIds.includes(item.id)
                                 ? 'bg-blue-200 border-l-4 border-blue-500 dark:border-teal-600 dark:bg-teal-900'
                                 : openRowId === item.id
                                 ? item.rent_status === 'overdue'
@@ -96,19 +104,19 @@ const FinancialData = ({count, financials, page, setPage, totalPages, onPageChan
                                 </td>
                                 <td className='py-4 px-3 border-b border-white dark:border-gray-800'>
                                     <div className='flex items-center gap-3'>
-                                        <span className={`${getColorFromName(item.property_obj)} h-8 w-8 flex items-center justify-center rounded-full font-bold bg-blue-500 text-white`}>
-                                            {getInitials(item.property_obj)} 
+                                        <span className={`${getColorFromName(item.property_name)} h-8 w-8 flex items-center justify-center rounded-full font-bold bg-blue-500 text-white`}>
+                                            {getInitials(item.property_name)} 
                                         </span>
-                                        {item.property_obj}
+                                        {item.property_name}
                                     </div>
                                 </td>
                                 <td className='py-4 px-3 border-b border-white dark:border-gray-800'>{item.unit_number}</td>
                                 <td className='py-4 px-3 border-b border-white dark:border-gray-800'>
                                     <div className='flex items-center gap-3'>
-                                        <span className={`${getColorFromName(item.tenant_snapshot)} h-8 w-8 flex items-center justify-center rounded-full font-bold bg-blue-500 text-white`}>
-                                            {getInitials(item.tenant_snapshot)} 
+                                        <span className={`${getColorFromName(item.tenant_name)} h-8 w-8 flex items-center justify-center rounded-full font-bold bg-blue-500 text-white`}>
+                                            {getInitials(item.tenant_name)} 
                                         </span>
-                                        {item.tenant_snapshot || '-'}
+                                        {item.tenant_name || '-'}
                                     </div>
                                 </td>
                                 <td className='py-4 px-3 border-b border-white dark:border-gray-800'>Ksh. {item.rent_payable}</td>
@@ -166,8 +174,10 @@ const FinancialData = ({count, financials, page, setPage, totalPages, onPageChan
                         
                     ): (
                         <tr className='relative text-center'>
-                            <td className='text-center absolute text-gray-500 min-w-full'>
-                                <p>No records found</p>
+                            <td colSpan={9}>
+                                <div className='flex justify-center mt-3'>
+                                    <div className='animate-spin border-2 border-t-transparent h-6 w-6 border-blue-500 rounded-full'></div>
+                                </div>
                             </td>
                         </tr>
                     )}

@@ -14,7 +14,7 @@ const useReports = () => {
             setLoading(true)
 
             try{
-                const res = await axios.get('http://127.0.0.1:8000/api/properties/reports/', {
+                const res = await axios.get(`http://127.0.0.1:8000/api/properties/reports/`, {
                     signal: controller.signal
                 })
                 setReports(res.data ?? [])

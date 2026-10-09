@@ -56,7 +56,7 @@ const useUnit = (page=1, filter={}, search='', resultId, sortField='unit_number'
         }
     }
 
-    return {units, deleteRecord, count}
+    return {units, loading, deleteRecord, count}
     
 }
 

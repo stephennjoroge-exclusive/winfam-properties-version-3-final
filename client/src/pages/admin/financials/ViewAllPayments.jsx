@@ -1,6 +1,5 @@
 import React from 'react'
 import { useState, useEffect } from 'react'
-import axios from 'axios'
 import { CgCloseO } from "react-icons/cg";
 import { GoDotFill } from "react-icons/go";
 import { IoSearchSharp } from "react-icons/io5";

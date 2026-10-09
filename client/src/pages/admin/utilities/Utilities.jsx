@@ -18,16 +18,35 @@ const Utilities = () => {
     const [search, setSearch] = useState('')
     const [page, setPage] = useState(1)
     const [searchDropdown, setSearchDropdown] = useState(false)
-    const {utility, count} = useUtility(search, page)
+    const [sortField, setSortField] = useState('')
+    const [filter, setFilter] = useState({})
+    const [sortDirection, setSortDirection] = useState('asc')
+    const {utility, loading, count} = useUtility(search, page, filter, sortField, sortDirection)
     const {propertyFilter} = usePropertyFilter()
     const {suggestions} = useSuggestions(search)
+   
 
     const PAGE_SIZE = 10
     const totalPages = Math.ceil(count / PAGE_SIZE)
 
+    const handleSort = (field) => {
+        if (sortField === field){
+            setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc')
+        } else {
+            setSortField(field)
+            setSortDirection('asc')
+        }
+    }
+
     const propertyOptions = [
         {value: '', label: 'All Properties'},
         ...(Array.isArray(propertyFilter) ? propertyFilter : []).map(item =>({value: item.id, label: item.landlord_name}))
+    ]
+
+    const UtilityOption = [
+        { value: '', label: 'All Utilities' },
+        { value: 'water', label: 'Water' },
+        { value: 'electricity', label: 'Electricity' },
     ]
 
     const onPageChange = (set_page) => {
@@ -102,12 +121,19 @@ const Utilities = () => {
 
                 <div className='flex justify-between'>
                     <div className='flex gap-3 z-80'>
-                        <div className='flex gap-3 space-y-2'>
+                        <div className='flex gap-3'>
                             <FilterDropdown
-                                label='All Properties'
+                                label='All Property'
                                 options={propertyOptions}
-                                value={'kkkj'}
+                                value={filter.property_obj}
                                 onChange={(item) => setFilter(prev => ({ ...prev, property_obj: item }))}
+                                width={`min-w-[180px]`}
+                            />
+                            <FilterDropdown
+                                label='All Utilities'
+                                options={UtilityOption}
+                                value={filter.item}
+                                onChange={(item) => setFilter(prev => ({ ...prev, item: item }))}
                                 width={`min-w-[180px]`}
                             />
                         </div>
@@ -139,7 +165,8 @@ const Utilities = () => {
                 </div>
             </section>
 
-            <UtilitiesData utility={utility} />
+            <UtilitiesData utility={utility} handleSort={handleSort} sortDirection={sortDirection} 
+                sortField={sortField} loading={loading} />
 
             <div>
                 <PaginationFull page={page} totalPages={totalPages} onPageChange={onPageChange} />
